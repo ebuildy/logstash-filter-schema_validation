@@ -16,9 +16,6 @@ if [ "$LOGSTASH_BRANCH" ]; then
     echo "Building plugins with Logstash version:"
     cat versions.yml
     echo "---"
-    # We need to build the jars for that specific version
-    echo "Running gradle assemble in: `pwd`"
-    ./gradlew assemble
     cd $BASE_DIR
     export LOGSTASH_SOURCE=1
 else

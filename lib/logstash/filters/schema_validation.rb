@@ -44,7 +44,7 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
 
     if File.exists?(schemaFilePath)
 
-      validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment)
+      validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
 
       if validationErrors.empty?
         filter_matched(event)

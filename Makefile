@@ -6,3 +6,6 @@ logstash/install:
 
 logstash/run:
 	logstash -f /usr/share/logstash/pipeline/debug.conf
+
+dev/tester/run:
+	docker run -ti --rm jruby:9 bash

@@ -1,0 +1,22 @@
+{
+  "type" : "object",
+  "properties" : {
+    "name" : {
+      "type" : "object",
+      "properties" : {
+        "first": {
+            "type": "string"
+        },
+        "last": {
+            "type": "string"
+        }
+      },
+      "required": ["first", "last"]
+    },
+    "age": {
+        "description": "Age in years",
+        "type": "integer",
+        "minimum": 0
+    }
+  }
+}

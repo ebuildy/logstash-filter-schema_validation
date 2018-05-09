@@ -1,0 +1,7 @@
+*.gem
+Gemfile.lock
+Gemfile.bak
+.bundle
+vendor
+.idea
+.mvn

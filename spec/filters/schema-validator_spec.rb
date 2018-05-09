@@ -7,15 +7,14 @@ describe LogStash::Filters::SchemaValidation do
     let(:config) do <<-CONFIG
       filter {
         schema_validation {
-          message => "Hello World"
+          schema => "/wrong_file.json"
         }
       }
     CONFIG
     end
 
     sample("message" => "some text") do
-      expect(subject).to include("message")
-      expect(subject.get('message')).to eq('Hello World')
+      expect(subject).to include("tags")
     end
   end
 end

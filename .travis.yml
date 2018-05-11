@@ -4,7 +4,7 @@ sudo: false
 language: ruby
 cache: bundler
 global:
-  - LOGSTASH_PATH=/usr/share/logstash
+  - LOGSTASH_PATH=../../logstash
 matrix:
   include:
   - rvm: jruby-9.1.13.0

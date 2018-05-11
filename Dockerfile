@@ -1,0 +1,24 @@
+ARG JRUBY_VERSION=9
+
+FROM jruby:${JRUBY_VERSION}
+
+ARG LOGSTASH_BRANCH
+ARG BASE_DIR=/usr/share/dev_plugin
+ARG LOGSTASH_SOURCE=1
+
+ENV LOGSTASH_PATH=/usr/share/logstash
+ENV LOGSTASH_SOURCE=${LOGSTASH_SOURCE}
+
+WORKDIR $BASE_DIR
+
+ADD Gemfile logstash-filter-schema_validation.gemspec Rakefile $BASE_DIR/
+ADD ci/bin/setup.sh $BASE_DIR/ci/bin/setup.sh
+
+SHELL ["/bin/bash", "-c"]
+
+RUN source ci/bin/setup.sh && \
+    bundle install --no-cache && \
+    bundle exec rake vendor && \
+    cp Gemfile.lock /tmp/Gemfile.lock
+
+CMD cp /tmp/Gemfile.lock .; bundle exec rspec spec

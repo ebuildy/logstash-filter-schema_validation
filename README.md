@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/ebuildy/logstash-filter-schema_validation.svg?branch=master)](https://travis-ci.org/ebuildy/logstash-filter-schema_validation)
+
+
 # Logstash Plugin
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).

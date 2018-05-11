@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+
+  test-jruby9:
+    build:
+      context: .
+      args:
+        JRUBY_VERSION: "9"
+        LOGSTASH_SOURCE: "0"
+    volumes:
+    - .:/usr/share/dev_plugin
+
+  test-jruby9-logstash6:
+    build:
+      context: .
+      args:
+        LOGSTASH_BRANCH: "6.x"
+        JRUBY_VERSION: "9"
+    volumes:
+    - .:/usr/share/dev_plugin
+
+  test-jruby9-logstash7:
+    build:
+      context: .
+      args:
+        LOGSTASH_BRANCH: "master"
+        JRUBY_VERSION: "9"
+    volumes:
+    - .:/usr/share/dev_plugin

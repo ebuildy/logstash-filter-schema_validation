@@ -8,9 +8,9 @@ global:
 matrix:
   include:
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=6.x
+    env: LOGSTASH_BRANCH=6.x LOGSTASH_PATH=/usr/share/logstash
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=master
+    env: LOGSTASH_BRANCH=master LOGSTASH_PATH=/usr/share/logstash
   fast_finish: true
 install: true
 script: ci/bin/build.sh

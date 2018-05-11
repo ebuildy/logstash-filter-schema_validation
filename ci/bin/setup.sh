@@ -7,9 +7,9 @@ if [ "$LOGSTASH_BRANCH" ]; then
     BASE_DIR=`pwd`
     echo "Downloading branch: $LOGSTASH_BRANCH"
     wget --quiet https://github.com/elastic/logstash/archive/$LOGSTASH_BRANCH.zip
-    unzip -q $LOGSTASH_BRANCH.zip -d /tmp/logstash
-    unlink $LOGSTASH_BRANCH.zip
-    mv /tmp/logstash/*/ $LOGSTASH_PATH
+    unzip -q $LOGSTASH_BRANCH.zip -d __logstash
+    mv __logstash/*/ $LOGSTASH_PATH
+    rm -rf __logstash $LOGSTASH_BRANCH.zip
     cd $LOGSTASH_PATH
     echo "Building plugins with Logstash version:"
     cat versions.yml

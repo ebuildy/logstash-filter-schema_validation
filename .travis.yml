@@ -3,14 +3,12 @@
 sudo: false
 language: ruby
 cache: bundler
-global:
-  - LOGSTASH_PATH=../../logstash
 matrix:
   include:
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=6.x LOGSTASH_PATH=/usr/share/logstash
+    env: LOGSTASH_BRANCH=6.x LOGSTASH_PATH=../../logstash
   - rvm: jruby-9.1.13.0
-    env: LOGSTASH_BRANCH=master LOGSTASH_PATH=/usr/share/logstash
+    env: LOGSTASH_BRANCH=master LOGSTASH_PATH=../../logstash
   fast_finish: true
 install: true
 script: ci/bin/build.sh

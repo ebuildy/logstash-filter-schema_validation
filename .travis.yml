@@ -3,6 +3,8 @@
 sudo: false
 language: ruby
 cache: bundler
+global:
+  - LOGSTASH_PATH=/usr/share/logstash
 matrix:
   include:
   - rvm: jruby-9.1.13.0
@@ -13,5 +15,3 @@ matrix:
 install: true
 script: ci/bin/build.sh
 jdk: oraclejdk8
-env:
-  - LOGSTASH_PATH=/usr/share/logstash

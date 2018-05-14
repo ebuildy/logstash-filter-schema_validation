@@ -5,26 +5,46 @@ services:
   test-jruby9:
     build:
       context: .
+      dockerfile: ./ci/docker/Dockerfile-tests
       args:
         JRUBY_VERSION: "9"
         LOGSTASH_SOURCE: "0"
     volumes:
     - .:/usr/share/dev_plugin
 
-  test-jruby9-logstash6:
-    build:
-      context: .
-      args:
-        LOGSTASH_BRANCH: "6.x"
-        JRUBY_VERSION: "9"
-    volumes:
-    - .:/usr/share/dev_plugin
+  # test-jruby9-logstash6:
+  #   build:
+  #     context: .
+  #     dockerfile: ./ci/docker/Dockerfile-tests
+  #     args:
+  #       LOGSTASH_BRANCH: "6.x"
+  #       JRUBY_VERSION: "9"
+  #   volumes:
+  #   - .:/usr/share/dev_plugin
+  #
+  # test-jruby9-logstash7:
+  #   build:
+  #     context: .
+  #     dockerfile: ./ci/docker/Dockerfile-tests
+  #     args:
+  #       LOGSTASH_BRANCH: "master"
+  #       JRUBY_VERSION: "9"
+  #   volumes:
+  #   - .:/usr/share/dev_plugin
 
-  test-jruby9-logstash7:
+  run-logstash:
     build:
       context: .
+      dockerfile: ./ci/docker/Dockerfile-dev
       args:
-        LOGSTASH_BRANCH: "master"
-        JRUBY_VERSION: "9"
+      - LOGSTASH_VERSION=6.2.4
+      - GEM
     volumes:
-    - .:/usr/share/dev_plugin
+    - ./spec/schemas:/usr/share/logstash/__schemas:ro
+    - ./spec/pipelines:/usr/share/logstash/piplines:ro
+    command: "logstash -f /usr/share/logstash/piplines/test.conf"
+    ports:
+    - 8080:8081
+    - 9600:9600
+    environment:
+    - ENV_SCHEMA=simple

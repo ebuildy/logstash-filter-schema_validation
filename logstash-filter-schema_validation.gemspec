@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-filter-schema_validation'
-  s.version       = '0.1.0'
+  s.version       = '0.1.1'
   s.licenses      = ['Apache-2.0']
   s.summary       = 'Validate event schema with JSON Schema.'
-  s.description   = 'Validate event schema with JSON Schema.'
-  s.homepage      = 'https://github.com'
+  s.description   = 'Validate event schema with JSON Schema with json-schema ruby library.'
+  s.homepage      = 'https://github.com/ebuildy/logstash-filter-schema_validation'
   s.authors       = ['Thomas Decaux']
   s.email         = 't.decaux@qwant.com'
   s.require_paths = ['lib']

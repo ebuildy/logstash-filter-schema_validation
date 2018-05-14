@@ -1,5 +1,11 @@
 [![Build Status](https://travis-ci.org/ebuildy/logstash-filter-schema_validation.svg?branch=master)](https://travis-ci.org/ebuildy/logstash-filter-schema_validation)
 
+https://rubygems.org/gems/logstash-filter-schema_validation
+
+## Installation
+
+``logstash-plugin install logstash-filter-schema_validation``
+
 
 # Logstash Plugin
 

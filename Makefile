@@ -14,12 +14,15 @@ logstash/run:
 	logstash -f /usr/share/logstash/pipeline/debug.conf
 
 test/setup:
-	docker-compose build
+	GEM=$$(ls *.gem) docker-compose build
 
 test/run:
-	docker-compose run --rm test-jruby9
+	docker-compose run -e ENV_SCHEMA=simple --rm test-jruby9
 	#docker-compose run --rm test-jruby9-logstash6
 	#docker-compose run --rm test-jruby9-logstash7
 
 test/stop:
 	docker-compose down
+
+dev/run:
+	docker-compose up run-logstash

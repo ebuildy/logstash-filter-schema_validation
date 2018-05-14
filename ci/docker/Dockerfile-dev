@@ -1,0 +1,16 @@
+ARG LOGSTASH_VERSION=6.2.4
+
+FROM docker.elastic.co/logstash/logstash-oss:${LOGSTASH_VERSION}
+
+ARG LOGSTASH_VERSION
+ARG GEM
+ARG BASE_DIR=/usr/share/logstash/__dev_plugin
+
+ENV LOGSTASH_PATH=/usr/share/logstash
+ENV LOGSTASH_VERSION=${LOGSTASH_VERSION}
+
+WORKDIR $BASE_DIR
+
+COPY ${GEM} .
+
+RUN logstash-plugin install ${GEM}

@@ -74,7 +74,6 @@ describe LogStash::Filters::SchemaValidation do
     end
 
     sample("firstName" => "tom", "lastame" => "Decaux", "age" => 34) do
-      puts subject.to_hash.to_s
       expect(subject).to include("tags")
       expect(subject.get("_errors")[0]).to include("The property '#/' did not contain a required property of 'lastName'")
     end
@@ -93,6 +92,38 @@ describe LogStash::Filters::SchemaValidation do
 
     sample("firstName" => "tom", "lastName" => "Decaux", "age" => 34, "sex" => "enormous") do
       expect(subject).to include("tags")
+    end
+  end
+
+  describe "I should specify the schema file via environment variable" do
+    let(:config) do <<-CONFIG
+      filter {
+        schema_validation {
+          schema => "./spec/schemas/${ENV_SCHEMA}.json"
+          report_field => "_errors"
+        }
+      }
+    CONFIG
+    end
+
+    sample("firstName" => "tom", "lastName" => "Decaux", "age" => 34, "sex" => "enormous") do
+      expect(subject).not_to include("tags")
+    end
+  end
+
+  describe "I should specify the schema file via event data" do
+    let(:config) do <<-CONFIG
+      filter {
+        schema_validation {
+          schema => "./spec/schemas/%{schema}.json"
+          report_field => "_errors"
+        }
+      }
+    CONFIG
+    end
+
+    sample("firstName" => "tom", "lastName" => "Decaux", "age" => 34, "sex" => "enormous", "schema" => "simple") do
+      expect(subject).not_to include("tags")
     end
   end
 end

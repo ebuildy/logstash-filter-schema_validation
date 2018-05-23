@@ -1,6 +1,4 @@
-ARG JRUBY_VERSION=9
-
-FROM jruby:${JRUBY_VERSION}
+FROM jruby:9.1-jdk
 
 ARG LOGSTASH_BRANCH
 ARG BASE_DIR=/usr/share/dev_plugin
@@ -11,12 +9,16 @@ ENV LOGSTASH_SOURCE=${LOGSTASH_SOURCE}
 
 WORKDIR $BASE_DIR
 
-ADD Gemfile logstash-filter-schema_validation.gemspec Rakefile $BASE_DIR/
+ADD Gemfile logstash-filter-schema_validation.gemspec Rakefile build.gradle $BASE_DIR/
 ADD ci/bin/setup.sh $BASE_DIR/ci/bin/setup.sh
 
 SHELL ["/bin/bash", "-c"]
 
-RUN source ci/bin/setup.sh && \
+RUN source ci/bin/setup.sh
+
+ENV PATH=$PATH:/usr/share/logstash/bin
+
+RUN \
     bundle install --no-cache && \
     bundle exec rake vendor && \
     cp Gemfile.lock /tmp/Gemfile.lock

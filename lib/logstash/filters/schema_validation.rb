@@ -1,7 +1,16 @@
 # encoding: utf-8
+require "java"
+require "logstash-filter-schema_validation"
 require "logstash/filters/base"
 require "logstash/namespace"
-require "json-schema"
+
+java_import "java.io.FileInputStream"
+java_import "com.fasterxml.jackson.databind.JsonNode"
+java_import "com.fasterxml.jackson.databind.ObjectMapper"
+java_import "com.github.fge.jsonschema.core.report.ProcessingReport"
+java_import "com.github.fge.jsonschema.main.JsonSchema"
+java_import "com.github.fge.jsonschema.main.JsonSchemaFactory"
+java_import "com.github.fge.jsonschema.cfg.ValidationConfigurationBuilder"
 
 # This  filter will replace the contents of the default
 # message field with whatever you specify in the configuration.
@@ -17,24 +26,19 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
   # Retrieve errors.
   config :report_field, :validate => :string, :default => nil
 
-  # JSON Schema option
-  # with the `:strict` option, all properties are condisidered to have `"required": true` and all objects `"additionalProperties": false`
-  config :strict, :validate => :boolean, :default => false
-
-  # JSON Schema option
-  # with the `:fragment` option, only a fragment of the schema is used for validation
-  config :fragment, :validate => :string
-
-  # JSON Schema option
-  # with the `:version` option, schemas conforming to older drafts of the json schema spec can be used
-  config :spec_version, :validate => :string, :default => "draft2"
-
   # Tags the event on failure to look up geo information. This can be used in later analysis.
   config :tag_on_failure, :validate => :array, :default => ["_schema_validation_failure"]
 
   public
   def register
     @schema = File.expand_path(@schema)
+
+    @schemaFactory = JsonSchemaFactory.newBuilder().freeze()
+
+    @jsonMapper = ObjectMapper.new
+    @validator = JsonSchemaFactory.byDefault().getValidator()
+
+    @cacheSchema = {}
   end # def register
 
   public
@@ -44,15 +48,27 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
 
     if File.exists?(schemaFilePath)
 
-      validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
+      schema = get_schema(schemaFilePath)
 
-      if validationErrors.empty?
+      json = @jsonMapper.readTree(event.to_json)
+
+      #validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
+
+      validationErrors = schema.validate(json)
+
+      if validationErrors.isSuccess
         filter_matched(event)
       else
         tag_unsuccessful_lookup(event)
 
         unless @report_field.nil? || @report_field.empty?
-          event.set(@report_field, validationErrors)
+          report = Array.new
+
+          validationErrors.each do |message|
+            report.push(message.getMessage)
+          end
+
+          event.set(@report_field, report)
         end
       end
 
@@ -78,6 +94,16 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
   private
   def generate_filepath(event)
     event.sprintf(@schema)
+  end
+
+  private
+  def get_schema(name)
+      unless @cacheSchema.key?(name)
+        schema = @schemaFactory.getJsonSchema("file://" + name)
+        @cacheSchema[name] = schema
+      end
+
+      return @cacheSchema[name]
   end
 
 end

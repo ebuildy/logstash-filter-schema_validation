@@ -1,8 +1,7 @@
 author = ebuildy
 plugin_name = logstash-filter-schema_validation
 
-export COMPOSE_FILE = ./docker-compose.yml
-export COMPOSER_PROJECT = $(plugin_name)
+.PHONY: build
 
 build:
 	gem build $(plugin_name).gemspec
@@ -14,7 +13,7 @@ logstash/run:
 	logstash -f /usr/share/logstash/pipeline/debug.conf
 
 test/setup:
-	GEM=$$(ls *.gem) docker-compose build
+	docker-compose build test-jruby9
 
 test/run:
 	docker-compose run -e ENV_SCHEMA=simple --rm test-jruby9
@@ -25,4 +24,4 @@ test/stop:
 	docker-compose down
 
 dev/run:
-	docker-compose up run-logstash
+	GEM=$$(ls *.gem) docker-compose up --build run-logstash

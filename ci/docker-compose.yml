@@ -4,13 +4,12 @@ services:
 
   test-jruby9:
     build:
-      context: .
+      context: ..
       dockerfile: ./ci/docker/Dockerfile-tests
       args:
-        JRUBY_VERSION: "9"
-        LOGSTASH_SOURCE: "0"
+        LOGSTASH_BRANCH: "6.x"
     volumes:
-    - .:/usr/share/dev_plugin
+    - ..:/usr/share/dev_plugin
 
   # test-jruby9-logstash6:
   #   build:
@@ -34,14 +33,14 @@ services:
 
   run-logstash:
     build:
-      context: .
+      context: ..
       dockerfile: ./ci/docker/Dockerfile-dev
       args:
       - LOGSTASH_VERSION=6.2.4
       - GEM
     volumes:
-    - ./spec/schemas:/usr/share/logstash/__schemas:ro
-    - ./spec/pipelines:/usr/share/logstash/piplines:ro
+    - ../spec/schemas:/usr/share/logstash/__schemas:ro
+    - ../spec/pipelines:/usr/share/logstash/piplines:ro
     command: "logstash -f /usr/share/logstash/piplines/test.conf"
     ports:
     - 8080:8081

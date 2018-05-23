@@ -44,24 +44,6 @@ describe LogStash::Filters::SchemaValidation do
     end
   end
 
-  describe "With fragment I should not see the failure tag" do
-    let(:config) do <<-CONFIG
-      filter {
-        schema_validation {
-          schema => "./spec/schemas/simple0.json"
-          report_field => "_errors"
-          fragment => "#/properties/name"
-        }
-      }
-    CONFIG
-    end
-
-    sample("first" => "tom", "last" => "Decaux") do
-#      puts subject.to_hash.to_s
-      expect(subject).not_to include("tags")
-    end
-  end
-
   describe "Without respecting the schema I should see the failure tag and the error details" do
     let(:config) do <<-CONFIG
       filter {
@@ -74,8 +56,9 @@ describe LogStash::Filters::SchemaValidation do
     end
 
     sample("firstName" => "tom", "lastame" => "Decaux", "age" => 34) do
+      puts subject.get("_errors")
       expect(subject).to include("tags")
-      expect(subject.get("_errors")[0]).to include("The property '#/' did not contain a required property of 'lastName'")
+      expect(subject.get("_errors")[0]).to include("object has missing required properties")
     end
   end
 
@@ -83,8 +66,7 @@ describe LogStash::Filters::SchemaValidation do
     let(:config) do <<-CONFIG
       filter {
         schema_validation {
-          schema => "./spec/schemas/simple.json"
-          strict => true
+          schema => "./spec/schemas/simple_strict.json"
         }
       }
     CONFIG

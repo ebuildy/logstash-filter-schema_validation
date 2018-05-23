@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "client": {
+      "type": "object",
+      "properties": {
+        "origin": { "type": "string" },
+        "locale":           { "type": "string" },
+        "user_agent":          { "type": "string" },
+        "test_group":           { "type": "integer" },
+        "token":           { "type": "string" },
+        "ip":           { "type": "string" }
+      },
+      "required": ["locale", "user_agent", "token"]
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "client": { "type": "string" },
+        "type":           { "type": "string" },
+        "method":          { "type": "string" },
+        "host":           { "type": "string" },
+        "uri":           { "type": "string" },
+        "server":           { "type": "string" },
+        "spam_score":           { "type": "integer" },
+        "referer":           { "type": "string" },
+        "referer_host":           { "type": "string" },
+        "referer_scheme":           { "type": "string" },
+        "referer_domain":           { "type": "string" }
+      }
+    },
+    "product": {
+      "type": "object",
+      "properties": {
+        "module": { "type": "string" },
+        "version":           { "type": "string" },
+        "name":          { "type": "string" }
+      },
+      "required": ["module", "version", "name"]
+    },
+    "data_search": {
+      "type": "object",
+      "properties": {
+        "query": { "type": "string" },
+        "domain": { "type": "string" },
+        "tab": { "type": "string" }
+      },
+      "required": ["query", "domain", "tab"]
+    }
+  },
+
+  "type" : "object",
+  "properties" : {
+    "name" : { "type" : "string" },
+    "schema" : { "type" : "string" },
+    "@version" : { "type" : "string" },
+    "@timestamp" : { "type" : "string" },
+    "date" : { "type" : "integer" },
+    "client" : { "$ref" : "#/definitions/client" },
+    "request" : { "$ref" : "#/definitions/request" },
+    "product" : { "$ref" : "#/definitions/product" },
+    "data" : { "$ref" : "#/definitions/data_search" }
+  },
+  "required": ["name", "date", "client"],
+  "additionalProperties" : false
+
+}

@@ -29,9 +29,9 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
   # with the `:version` option, schemas conforming to older drafts of the json schema spec can be used
   config :spec_version, :validate => :string, :default => "draft2"
 
-  # object source to run validation on
+  # object target to run validation on
   # when not set whole message is validated
-  config :source, :validate => :hash, :required => false, :default => nil
+  config :target, :validate => :string, :required => false, :default => nil
 
   # Tags the event on failure to look up geo information. This can be used in later analysis.
   config :tag_on_failure, :validate => :array, :default => ["_schema_validation_failure"]
@@ -48,10 +48,14 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
 
     if File.exists?(schemaFilePath)
       # if source is set do not parse full event
-      if @source.nil? || @source.empty?
+      if @target.nil? || @target.empty?
         validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
       else
-        validationErrors = JSON::Validator.fully_validate(schemaFilePath, source, :strict => @strict, :fragment => @fragment, :parse_data => false)
+        target = event.get(@target)
+        unless target.is_a?(Hash)
+          tag_unsuccessful_lookup(event)
+        end
+        validationErrors = JSON::Validator.fully_validate(schemaFilePath, target, :strict => @strict, :fragment => @fragment, :parse_data => false)
       end
       
 

@@ -126,4 +126,57 @@ describe LogStash::Filters::SchemaValidation do
       expect(subject).not_to include("tags")
     end
   end
+
+  describe "I should specify the target in the message" do
+    let(:config) do <<-CONFIG
+      filter {
+        schema_validation {
+          schema => "./spec/schemas/${ENV_SCHEMA}.json"
+          report_field => "_errors"
+          target => "log_processed"
+        }
+      }
+    CONFIG
+    end
+
+    sample("log_processed" => {"firstName" => "tom", "lastName" => "Decaux", "age" => 34, "sex" => "enormous"}) do
+      expect(subject).not_to include("tags")
+    end
+  end
+
+  describe "Should give same error when target is present" do
+    let(:config) do <<-CONFIG
+      filter {
+        schema_validation {
+          schema => "./spec/schemas/${ENV_SCHEMA}.json"
+          report_field => "_errors"
+          target => "log_processed"
+        }
+      }
+    CONFIG
+    end
+
+    sample("log_processed" => {"firstName" => "tom", "age" => 34}) do
+      expect(subject).to include("tags")
+      expect(subject.get("_errors")[0]).to include("The property '#/' did not contain a required property of 'lastName'")
+    end
+  end
+
+  describe "Should give error when the selected target is not present" do
+    let(:config) do <<-CONFIG
+      filter {
+        schema_validation {
+          schema => "./spec/schemas/${ENV_SCHEMA}.json"
+          report_field => "_errors"
+          target => "log_processed"
+        }
+      }
+    CONFIG
+    end
+
+    sample("firstName" => "tom", "age" => 34) do
+      expect(subject).to include("tags")
+      expect(subject.get("_errors")[0]).to include("The property '#/' did not contain a required property of 'lastName'")
+    end
+  end
 end

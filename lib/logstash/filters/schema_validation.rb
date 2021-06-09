@@ -48,16 +48,20 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
 
     if File.exists?(schemaFilePath)
       # if source is set do not parse full event
+      validationErrors = []
       if @target.nil? || @target.empty?
         validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
       else
         target = event.get(@target)
-        unless target.is_a?(Hash)
+        if target.is_a?(Hash)
+          validationErrors = JSON::Validator.fully_validate(schemaFilePath, target, :strict => @strict, :fragment => @fragment, :parse_data => false)
+        else 
           tag_unsuccessful_lookup(event)
+          unless @report_field.nil? || @report_field.empty?
+            event.set(@report_field, ["Target '" + @target + "' does not exists in message"])
+          end
         end
-        validationErrors = JSON::Validator.fully_validate(schemaFilePath, target, :strict => @strict, :fragment => @fragment, :parse_data => false)
       end
-      
 
       if validationErrors.empty?
         filter_matched(event)
@@ -88,6 +92,10 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
     @tag_on_failure.each{|tag| event.tag(tag)}
   end
 
+  def tag_target_not_found(event)
+    @logger.debug? && @logger.debug("Event data is not valide!", :event => event)
+    @tag_on_failure.each{|tag| event.tag(tag)}
+  end
   private
   def generate_filepath(event)
     event.sprintf(@schema)

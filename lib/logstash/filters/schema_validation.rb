@@ -29,6 +29,10 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
   # with the `:version` option, schemas conforming to older drafts of the json schema spec can be used
   config :spec_version, :validate => :string, :default => "draft2"
 
+  # object target to run validation on
+  # when not set whole message is validated
+  config :target, :validate => :string, :required => false, :default => nil
+
   # Tags the event on failure to look up geo information. This can be used in later analysis.
   config :tag_on_failure, :validate => :array, :default => ["_schema_validation_failure"]
 
@@ -43,8 +47,21 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
     schemaFilePath = generate_filepath(event)
 
     if File.exists?(schemaFilePath)
-
-      validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
+      # if source is set do not parse full event
+      validationErrors = []
+      if @target.nil? || @target.empty?
+        validationErrors = JSON::Validator.fully_validate(schemaFilePath, event.to_hash, :strict => @strict, :fragment => @fragment, :parse_data => false)
+      else
+        target = event.get(@target)
+        if target.is_a?(Hash)
+          validationErrors = JSON::Validator.fully_validate(schemaFilePath, target, :strict => @strict, :fragment => @fragment, :parse_data => false)
+        else 
+          tag_unsuccessful_lookup(event)
+          unless @report_field.nil? || @report_field.empty?
+            event.set(@report_field, ["Target '" + @target + "' does not exists in message"])
+          end
+        end
+      end
 
       if validationErrors.empty?
         filter_matched(event)
@@ -75,6 +92,10 @@ class LogStash::Filters::SchemaValidation < LogStash::Filters::Base
     @tag_on_failure.each{|tag| event.tag(tag)}
   end
 
+  def tag_target_not_found(event)
+    @logger.debug? && @logger.debug("Event data is not valide!", :event => event)
+    @tag_on_failure.each{|tag| event.tag(tag)}
+  end
   private
   def generate_filepath(event)
     event.sprintf(@schema)

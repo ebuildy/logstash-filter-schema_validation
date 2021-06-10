@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-filter-schema_validation'
-  s.version       = '0.1.1'
+  s.version       = '0.1.2'
   s.licenses      = ['Apache-2.0']
   s.summary       = 'Validate event schema with JSON Schema.'
   s.description   = 'Validate event schema with JSON Schema with json-schema ruby library.'
